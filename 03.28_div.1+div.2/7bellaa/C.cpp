@@ -4,35 +4,28 @@ using namespace std;
 string solve() {
   int n, k;
   cin >> n >> k;
-  vector<int> A(n), B(n), cntA(n + 1), cntB(n + 1);
+  vector<int> A(n), B(n);
   for (int i = 0; i < n; i++) cin >> A[i];
   for (int i = 0; i < n; i++) cin >> B[i];
 
-  int l, r;
-  for (l = 0, r = 0; r < n; r++) {
-    cntA[A[r]]++;
-    if (r + k < n) {
-      if (B[r] == -1) B[r] = A[r];
-    }
-    if (B[r] != -1) cntB[B[r]]++;
-
-    while (r - l >= k) {
-      cntA[A[l]]--;
-      if (B[l] != -1) cntB[B[l]]--;
-      if (A[l] != B[l]) return "NO\n";
-      l++;
-    }
+  for (int i = 0; i < n - k; i++) {
+    int j = n - 1 - i;
+    if (B[i] == -1) B[i] = A[i];
+    if (B[j] == -1) B[j] = A[j];
+    if (A[i] != B[i] || A[j] != B[j]) return "NO";
   }
 
-  r--;
-  int gap = 0, wildcard = 0;
-  for (int i = l; i <= r; i++) {
-    if (cntA[A[i]] < cntB[A[i]]) return "NO\n";
-    gap += cntA[A[i]] - cntB[A[i]];
-    if (B[i] == -1) wildcard++;
+  vector<int> cnt(n + 1);
+  int wildcard = 0;
+  for (int i = n - k; i < k; i++) {
+    cnt[A[i]]++;
+    (B[i] == -1) ? wildcard++ : cnt[B[i]]--;
   }
-  if (gap > wildcard) return "NO\n";
-  return "YES\n";
+  if (*min_element(cnt.begin(), cnt.end()) < 0 ||
+      accumulate(cnt.begin(), cnt.end(), 0) > wildcard)
+    return "NO";
+
+  return "YES";
 }
 
 int main() {
@@ -40,5 +33,5 @@ int main() {
   cin.tie(nullptr);
   int t;
   cin >> t;
-  while (t--) cout << solve();
+  while (t--) cout << solve() << '\n';
 }
